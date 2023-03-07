@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 
+def gv
+
 pipeline {
     agent any
     parameters {
@@ -11,11 +13,22 @@ pipeline {
         SERVER_CREDENTIALS = credentials('server-credentials')
     }
     stages {
+        stage('init') {
+            steps {
+                script {
+                    gv = load "script.groovy"
+                }
+            }
+        }
+
+
+
         stage('build') {
             steps {
                 script {
-                    echo "Building the application..."
-                    echo "Building version ${NEW_VERSION}"
+                    // echo "Building the application..."
+                    gv.buildApp()
+                    echo "Building version ${params.VERSION}"
                 }
             }
         }
@@ -27,14 +40,14 @@ pipeline {
             }
             steps {
                 script {
-                    echo "Testing the application..."
+                    gv.testApp()
                 }
             }
         }
         stage('deploy') {
             steps {
                 script {
-                    echo "Deploying the application..."
+                    gv.deployApp()
                     echo "deploying with ${SERVER_CREDENTIALS}"
                 }
             }
